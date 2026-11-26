@@ -10,13 +10,17 @@ from app.seed import SEED_ROWS
 
 
 class Store:
+    # 质量链路的内部台账表：可通过专用/别名资源访问，但不计入业务模块总数与运营概览，
+    # 避免辅助表让 /api/health 的模块数从基线 20 发生漂移。
+    INTERNAL_TABLES = {"quality_check_run", "quality_confirmation", "quality_control"}
+
     def __init__(self) -> None:
         self._tables: dict[str, list[dict[str, Any]]] = {
             name: [dict(row) for row in rows] for name, rows in SEED_ROWS.items()
         }
 
     def module_names(self) -> list[str]:
-        return sorted(self._tables)
+        return sorted(name for name in self._tables if name not in self.INTERNAL_TABLES)
 
     def rows(self, module: str) -> list[dict[str, Any]]:
         return self._tables.setdefault(module, [])

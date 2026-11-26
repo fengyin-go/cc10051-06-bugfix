@@ -44,10 +44,16 @@ class BaseModuleService:
         return store.find(self.MODULE, entry_id)
 
     def create_entry(self, values: dict[str, Any]) -> tuple[dict[str, Any] | None, list[str]]:
-        missing = [
-            field for field in self.REQUIRED_FIELDS
-            if not str(values.get(field) or "").strip()
-        ]
+        def _is_missing(field: str) -> bool:
+            value = values.get(field)
+            if value is None:
+                return True
+            if isinstance(value, str) and not value.strip():
+                return True
+            # 数字 0 / False 都是合法值，不能当成缺失。
+            return False
+
+        missing = [field for field in self.REQUIRED_FIELDS if _is_missing(field)]
         if missing:
             return None, missing
         rows = store.rows(self.MODULE)
@@ -59,7 +65,9 @@ class BaseModuleService:
         rows.append(entry)
         return entry, []
 
-    def run_action(self, entry_id: int, action: str) -> tuple[dict[str, Any] | None, str]:
+    def run_action(
+        self, entry_id: int, action: str, remark: str | None = None
+    ) -> tuple[dict[str, Any] | None, str]:
         entry = store.find(self.MODULE, entry_id)
         if entry is None:
             return None, f"{self.ENTITY} {entry_id} 不存在或已归档"
@@ -69,6 +77,8 @@ class BaseModuleService:
         entry["status"] = target
         entry["pending"] = target != self.STATUS_ORDER[-1]
         entry["abnormal"] = action in self.NEGATIVE_ACTIONS
+        if remark:
+            entry["最近办理说明"] = remark
         return entry, f"{self.ENTITY}已{action}"
 
     def domain_snapshot(self) -> dict[str, Any]:

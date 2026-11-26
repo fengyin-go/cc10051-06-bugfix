@@ -14,6 +14,10 @@ from app.services.dist_task import DistTaskService
 from app.services.lineage_graph import LineageGraphService
 from app.services.quality_rule import QualityRuleService
 from app.services.quality_result import QualityResultService
+from app.services.quality_flow import (
+    QualityCheckRunService,
+    QualityConfirmationService,
+)
 from app.services.merge_review import MergeReviewService
 from app.services.version_rollback import VersionRollbackService
 from app.services.sync_cursor import SyncCursorService
@@ -36,6 +40,12 @@ SERVICES: dict[str, BaseModuleService] = {
     "lineage_graph": LineageGraphService(),
     "quality_rule": QualityRuleService(),
     "quality_result": QualityResultService(),
+    "quality_check_run": QualityCheckRunService(),
+    "quality_check_runs": QualityCheckRunService(),
+    "quality_run": QualityCheckRunService(),
+    "quality_runs": QualityCheckRunService(),
+    "quality_confirmation": QualityConfirmationService(),
+    "quality_confirmations": QualityConfirmationService(),
     "merge_review": MergeReviewService(),
     "version_rollback": VersionRollbackService(),
     "sync_cursor": SyncCursorService(),
